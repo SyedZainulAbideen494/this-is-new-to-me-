@@ -1,43 +1,825 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annoyance Report — Official Investigation</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blush: #F7D7E3;
+    --rose: #EFA3C8;
+    --soft-white: #FFFDFD;
+    --champagne: #D6B37A;
+    --deep-rose: #C96D9A;
+    --glass-bg: rgba(255, 253, 253, 0.12);
+    --glass-border: rgba(239, 163, 200, 0.25);
+    --glass-shadow: 0 32px 64px rgba(201, 109, 154, 0.12), 0 8px 24px rgba(201, 109, 154, 0.08);
+    --text-primary: #3D1A2E;
+    --text-secondary: #7A4A63;
+    --text-muted: #B07A98;
+  }
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #1A0A12;
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+  /* ── GLOBAL ANIMATED BACKGROUND ── */
+  .bg-canvas {
+    position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(247, 215, 227, 0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 80%, rgba(239, 163, 200, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 100% 100% at 50% 50%, #1A0A12 0%, #0E0509 100%);
+  }
+
+  .bg-orb {
+    position: fixed; border-radius: 50%; filter: blur(80px);
+    animation: orbFloat 12s ease-in-out infinite; pointer-events: none; z-index: 0;
+  }
+  .bg-orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(239,163,200,0.2) 0%, transparent 70%); top: -100px; left: -100px; animation-delay: 0s; }
+  .bg-orb-2 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(201,109,154,0.15) 0%, transparent 70%); bottom: -80px; right: -80px; animation-delay: -4s; }
+  .bg-orb-3 { width: 250px; height: 250px; background: radial-gradient(circle, rgba(214,179,122,0.1) 0%, transparent 70%); top: 50%; left: 60%; animation-delay: -8s; }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(40px, -30px) scale(1.05); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+  }
+
+  /* ── PARTICLES ── */
+  .particle-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+  /* ── SCREENS ── */
+  .screen {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; opacity: 0; pointer-events: none;
+    transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .screen.active { opacity: 1; pointer-events: all; }
+
+  /* ── GLASS CARD ── */
+  .glass-card {
+    background: rgba(255, 253, 253, 0.07);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(239, 163, 200, 0.2);
+    border-radius: 32px;
+    padding: 40px 32px;
+    box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.1);
+    width: 100%; max-width: 420px;
+    position: relative; overflow: hidden;
+  }
+  .glass-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(239,163,200,0.5), transparent);
+  }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(239, 163, 200, 0.12);
+    border: 1px solid rgba(239, 163, 200, 0.25);
+    border-radius: 100px; padding: 5px 14px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rose); margin-bottom: 24px;
+  }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--rose); animation: pulse 2s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+  /* ── TYPOGRAPHY ── */
+  .display-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 6vw, 38px);
+    font-weight: 300; line-height: 1.15;
+    color: var(--soft-white); letter-spacing: -0.01em;
+    margin-bottom: 12px;
+  }
+  .display-title em { font-style: italic; color: var(--rose); }
+  .subtitle {
+    font-size: 14px; font-weight: 400; line-height: 1.6;
+    color: rgba(255,253,253,0.5); margin-bottom: 32px;
+  }
+
+  /* ── BUTTON ── */
+  .btn-primary {
+    width: 100%; padding: 16px 24px;
+    background: linear-gradient(135deg, var(--rose), var(--deep-rose));
+    border: none; border-radius: 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    color: white; letter-spacing: 0.01em; cursor: pointer;
+    position: relative; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(201, 109, 154, 0.35), 0 2px 8px rgba(201, 109, 154, 0.2);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .btn-primary::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(201,109,154,0.45), 0 4px 12px rgba(201,109,154,0.25); }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary:active { transform: translateY(0) scale(0.98); }
+
+  .btn-ghost {
+    width: 100%; padding: 14px 24px;
+    background: rgba(239, 163, 200, 0.08);
+    border: 1px solid rgba(239, 163, 200, 0.2);
+    border-radius: 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    color: rgba(255,253,253,0.8); cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin-top: 12px;
+  }
+  .btn-ghost:hover { background: rgba(239,163,200,0.15); border-color: rgba(239,163,200,0.4); transform: translateY(-1px); }
+
+  /* ── TYPEWRITER ── */
+  .typewriter { display: inline; }
+  .cursor { display: inline-block; width: 2px; height: 1em; background: var(--rose); margin-left: 2px; animation: blink 1s step-end infinite; vertical-align: text-bottom; }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+  /* ── SCREEN 1 specific ── */
+  #s1 .eyebrow {
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--champagne); margin-bottom: 8px; font-weight: 500;
+  }
+  #s1 .stamp {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); margin-top: 20px; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #s1 .stamp::before, #s1 .stamp::after { content: ''; flex: 1; height: 1px; background: rgba(239,163,200,0.15); }
+
+  /* ── SCREEN 2 — SCANNER ── */
+  .scanner-wrap {
+    position: relative; width: 200px; height: 200px; margin: 0 auto 28px;
+  }
+  .scanner-ring {
+    position: absolute; border-radius: 50%;
+    border: 1.5px solid rgba(239,163,200,0.25);
+  }
+  .scanner-ring-1 { inset: 0; animation: scanRing 3s ease-in-out infinite; }
+  .scanner-ring-2 { inset: 20px; animation: scanRing 3s ease-in-out infinite 0.4s; }
+  .scanner-ring-3 { inset: 40px; animation: scanRing 3s ease-in-out infinite 0.8s; }
+  @keyframes scanRing { 0%,100%{opacity:0.3; transform:scale(1);} 50%{opacity:1; transform:scale(1.02);} }
+
+  .scanner-center {
+    position: absolute; inset: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(239,163,200,0.15) 0%, transparent 70%);
+    border: 1.5px solid rgba(239,163,200,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .scan-line {
+    position: absolute; left: 10%; right: 10%; height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--rose), transparent);
+    top: 10%; animation: scanLine 2.5s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(239,163,200,0.5);
+  }
+  @keyframes scanLine { 0%{top:10%;opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{top:90%;opacity:0;} }
+
+  .scan-status { font-size: 13px; color: rgba(255,253,253,0.55); margin-bottom: 16px; min-height: 20px; text-align: center; }
+
+  .progress-bar-track {
+    height: 3px; background: rgba(239,163,200,0.1);
+    border-radius: 100px; overflow: hidden; margin-bottom: 24px;
+  }
+  .progress-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--rose), var(--champagne));
+    border-radius: 100px; width: 0%;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 8px rgba(239,163,200,0.5);
+  }
+
+  .result-badge {
+    background: rgba(214, 179, 122, 0.1);
+    border: 1px solid rgba(214, 179, 122, 0.25);
+    border-radius: 12px; padding: 12px 16px; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; transition: opacity 0.5s ease;
+  }
+  .result-badge.show { opacity: 1; }
+  .result-badge-icon { font-size: 18px; }
+  .result-badge-text { font-size: 13px; font-weight: 500; color: var(--champagne); }
+
+  /* ── SCREEN 3 — EVIDENCE ── */
+  .evidence-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px;
+  }
+  .evidence-card {
+    background: rgba(255,253,253,0.05);
+    border: 1px solid rgba(239,163,200,0.12);
+    border-radius: 16px; padding: 14px 12px;
+    opacity: 0; transform: translateY(16px);
+    transition: all 0.5s cubic-bezier(0.34,1.2,0.64,1);
+    position: relative; overflow: hidden;
+  }
+  .evidence-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(239,163,200,0.3), transparent);
+  }
+  .evidence-card.show { opacity: 1; transform: translateY(0); }
+  .evidence-num { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--champagne); margin-bottom: 6px; }
+  .evidence-text { font-size: 12px; font-weight: 400; color: rgba(255,253,253,0.75); line-height: 1.4; margin-bottom: 8px; }
+  .evidence-verified { font-size: 10px; color: var(--rose); letter-spacing: 0.05em; }
+
+  /* ── SCREEN 4 — AI REPORT ── */
+  .report-log {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(239,163,200,0.1);
+    border-radius: 16px; padding: 16px;
+    margin-bottom: 16px; font-family: 'DM Sans', monospace;
+    font-size: 12px; color: rgba(255,253,253,0.5);
+    min-height: 100px; line-height: 2;
+  }
+  .report-log .log-line { display: block; opacity: 0; animation: logFade 0.3s ease forwards; }
+  .report-log .log-line.done { color: var(--rose); }
+  @keyframes logFade { from{opacity:0; transform:translateX(-8px);} to{opacity:1; transform:translateX(0);} }
+
+  .report-result {
+    opacity: 0; transition: opacity 0.6s ease;
+  }
+  .report-result.show { opacity: 1; }
+  .report-field {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid rgba(239,163,200,0.08);
+    font-size: 13px;
+  }
+  .report-field:last-child { border-bottom: none; }
+  .report-field-label { color: rgba(255,253,253,0.45); }
+  .report-field-value { color: var(--soft-white); font-weight: 500; }
+  .severity-chip {
+    background: rgba(239,163,200,0.12); border: 1px solid rgba(239,163,200,0.2);
+    border-radius: 100px; padding: 3px 10px; font-size: 11px; color: var(--rose);
+  }
+
+  /* ── SCREEN 5 — CERTIFICATE ── */
+  .certificate {
+    background: linear-gradient(135deg, rgba(247,215,227,0.1) 0%, rgba(239,163,200,0.06) 100%);
+    border: 1px solid rgba(239,163,200,0.25);
+    border-radius: 24px; padding: 28px 24px; margin-bottom: 24px;
+    position: relative; overflow: hidden;
+  }
+  .certificate::before {
+    content: ''; position: absolute;
+    top: -40%; left: -20%; width: 80%; height: 80%;
+    background: radial-gradient(ellipse, rgba(247,215,227,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .certificate-header {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--champagne); margin-bottom: 16px; text-align: center;
+  }
+  .certificate-msg {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(20px, 5vw, 26px); font-weight: 300; font-style: italic;
+    color: var(--soft-white); line-height: 1.4; text-align: center;
+    margin-bottom: 20px; min-height: 80px;
+  }
+
+  .patch-notes {
+    background: rgba(0,0,0,0.2); border-radius: 14px; padding: 14px 16px;
+    font-size: 12px; line-height: 2;
+  }
+  .patch-title {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--champagne); margin-bottom: 8px;
+  }
+  .patch-item { color: rgba(255,253,253,0.65); }
+  .patch-item span.green { color: #88D5A8; }
+  .patch-item span.warn { color: var(--champagne); }
+
+  /* ── SCREEN 6 — ENDING ── */
+  .status-grid {
+    display: grid; gap: 10px; margin-bottom: 28px;
+  }
+  .status-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255,253,253,0.04); border: 1px solid rgba(239,163,200,0.1);
+    border-radius: 12px; padding: 12px 16px;
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.5s cubic-bezier(0.34,1.2,0.64,1);
+  }
+  .status-row.show { opacity: 1; transform: translateY(0); }
+  .status-label { font-size: 12px; color: rgba(255,253,253,0.45); }
+  .status-value { font-size: 12px; font-weight: 500; }
+  .status-value.green { color: #88D5A8; }
+  .status-value.blue { color: #89C4E1; }
+  .status-value.yellow { color: var(--champagne); }
+
+  .final-msg {
+    text-align: center; margin-bottom: 24px;
+  }
+  .final-msg h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(18px, 4vw, 24px); font-weight: 300; font-style: italic;
+    color: var(--soft-white); margin-bottom: 6px;
+  }
+  .final-msg p { font-size: 13px; color: rgba(255,253,253,0.4); margin-bottom: 4px; }
+  .final-msg small { font-size: 11px; color: rgba(255,253,253,0.2); letter-spacing: 0.05em; }
+
+  /* ── CONFETTI ── */
+  .confetti-canvas { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
+
+  /* ── SCREEN ENTER ANIMATIONS ── */
+  .screen-fade-up { animation: screenFadeUp 0.6s cubic-bezier(0.4,0,0.2,1) both; }
+  @keyframes screenFadeUp { from{opacity:0; transform:translateY(24px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: rgba(239,163,200,0.1); margin: 16px 0; }
+
+  /* ── SPARKLES SVG ── */
+  .sparkle {
+    position: fixed; pointer-events: none; z-index: 5;
+    animation: sparkleFly linear infinite;
+    font-size: 14px; opacity: 0;
+  }
+  @keyframes sparkleFly {
+    0% { opacity: 0; transform: translateY(0) rotate(0deg) scale(0.5); }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(-120vh) rotate(360deg) scale(1.2); }
+  }
+
+  /* ── SCROLLABLE CARD CONTENT ── */
+  .card-scroll { max-height: 70vh; overflow-y: auto; }
+  .card-scroll::-webkit-scrollbar { display: none; }
+
+  /* Responsive */
+  @media (max-width: 380px) {
+    .glass-card { padding: 28px 20px; border-radius: 24px; }
+    .evidence-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUNDS -->
+<div class="bg-canvas"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+<canvas class="particle-canvas" id="particleCanvas"></canvas>
+<canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+
+<!-- ═══════════════════════════ SCREEN 1 ═══════════════════════════ -->
+<section class="screen active" id="s1">
+  <div class="glass-card screen-fade-up">
+    <div class="badge"><div class="badge-dot"></div>Classified Document</div>
+    <div class="eyebrow">Official Communication</div>
+    <div class="display-title" id="s1-title"><em>Important<br>Announcement</em></div>
+    <div class="subtitle" id="s1-sub" style="min-height:70px;"></div>
+    <div class="stamp" id="s1-stamp" style="opacity:0;">Ref: YAP-2024 · Priority: Moderate</div>
+    <button class="btn-primary" id="s1-btn" style="opacity:0;" onclick="goTo(2)">
+      Continue Investigation →
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ SCREEN 2 ═══════════════════════════ -->
+<section class="screen" id="s2">
+  <div class="glass-card">
+    <div class="badge"><div class="badge-dot"></div>System Analysis</div>
+    <div class="scanner-wrap">
+      <div class="scanner-ring scanner-ring-1"></div>
+      <div class="scanner-ring scanner-ring-2"></div>
+      <div class="scanner-ring scanner-ring-3"></div>
+      <div class="scan-line"></div>
+      <div class="scanner-center">🔍</div>
+    </div>
+    <div class="scan-status" id="scanStatus">Initializing scan...</div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="scanProgress"></div>
+    </div>
+    <div class="result-badge" id="scanResult">
+      <div class="result-badge-icon">⚠️</div>
+      <div class="result-badge-text">Potential Issue Detected — I may have been annoying.</div>
+    </div>
+    <button class="btn-primary" id="s2-btn" style="opacity:0;" onclick="goTo(3)">
+      View Findings →
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ SCREEN 3 ═══════════════════════════ -->
+<section class="screen" id="s3">
+  <div class="glass-card card-scroll">
+    <div class="badge"><div class="badge-dot"></div>Evidence Board</div>
+    <div class="display-title" style="margin-bottom:20px;font-size:26px;">Filed <em>Evidence</em></div>
+    <div class="evidence-grid" id="evidenceGrid">
+      <div class="evidence-card" id="ev1">
+        <div class="evidence-num">Evidence #001</div>
+        <div class="evidence-text">Asked unnecessary questions.</div>
+        <div class="evidence-verified">● Verified</div>
+      </div>
+      <div class="evidence-card" id="ev2">
+        <div class="evidence-num">Evidence #002</div>
+        <div class="evidence-text">Possibly yapped too much.</div>
+        <div class="evidence-verified">● Verified</div>
+      </div>
+      <div class="evidence-card" id="ev3">
+        <div class="evidence-num">Evidence #003</div>
+        <div class="evidence-text">Conducted investigations nobody requested.</div>
+        <div class="evidence-verified">● Verified</div>
+      </div>
+      <div class="evidence-card" id="ev4">
+        <div class="evidence-num">Evidence #004</div>
+        <div class="evidence-text">Continued talking.</div>
+        <div class="evidence-verified">● Also verified.</div>
+      </div>
+    </div>
+    <button class="btn-primary" id="s3-btn" style="opacity:0;" onclick="goTo(4)">
+      Generate Final Report →
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ SCREEN 4 ═══════════════════════════ -->
+<section class="screen" id="s4">
+  <div class="glass-card">
+    <div class="badge"><div class="badge-dot"></div>AI Analysis</div>
+    <div class="display-title" style="font-size:24px;margin-bottom:16px;"><em>Report</em> Processing</div>
+    <div class="report-log" id="reportLog"></div>
+    <div class="report-result" id="reportResult">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;color:var(--champagne);margin-bottom:12px;">Official Findings</div>
+      <div class="report-field">
+        <span class="report-field-label">Verdict</span>
+        <span class="report-field-value">Not intentional</span>
+      </div>
+      <div class="report-field">
+        <span class="report-field-label">Primary Cause</span>
+        <span class="report-field-value">Yapping Syndrome</span>
+      </div>
+      <div class="report-field">
+        <span class="report-field-label">Severity</span>
+        <span class="severity-chip">Moderate</span>
+      </div>
+      <div class="report-field">
+        <span class="report-field-label">Classification</span>
+        <span class="report-field-value">YAP-2024-B</span>
+      </div>
+    </div>
+    <button class="btn-primary" id="s4-btn" style="opacity:0;margin-top:20px;" onclick="goTo(5)">
+      View Resolution →
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ SCREEN 5 ═══════════════════════════ -->
+<section class="screen" id="s5">
+  <div class="glass-card card-scroll">
+    <div class="badge"><div class="badge-dot"></div>Resolution</div>
+    <div class="certificate">
+      <div class="certificate-header">✦ Official Apology — On Record ✦</div>
+      <div class="certificate-msg" id="certMsg"></div>
+    </div>
+    <div class="patch-notes" id="patchNotes" style="opacity:0;transition:opacity 0.5s ease;">
+      <div class="patch-title">System Update v2.1 — Patch Notes</div>
+      <div class="patch-item"><span class="green">✔</span> Reduced yapping by 2%</div>
+      <div class="patch-item"><span class="green">✔</span> Improved self-awareness</div>
+      <div class="patch-item"><span class="green">✔</span> Added apology feature</div>
+      <div class="patch-item"><span class="green">✔</span> Fixed absolutely nothing</div>
+      <div style="height:6px;"></div>
+      <div class="patch-title" style="color:var(--champagne);">Known Issues</div>
+      <div class="patch-item"><span class="warn">⚠</span> Still occasionally annoying</div>
+      <div class="patch-item"><span class="warn">⚠</span> Still asks random questions</div>
+      <div class="patch-item"><span class="warn">⚠</span> Still likely to send websites</div>
+    </div>
+    <button class="btn-primary" id="s5-btn" style="opacity:0;margin-top:16px;" onclick="goTo(6)">
+      Close Case →
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ SCREEN 6 ═══════════════════════════ -->
+<section class="screen" id="s6">
+  <div class="glass-card">
+    <div class="badge"><div class="badge-dot"></div>Case Closed</div>
+    <div class="status-grid" id="statusGrid">
+      <div class="status-row" id="sr1">
+        <span class="status-label">Case Status</span>
+        <span class="status-value green">● Closed</span>
+      </div>
+      <div class="status-row" id="sr2">
+        <span class="status-label">Friendship Status</span>
+        <span class="status-value blue">● Operational</span>
+      </div>
+      <div class="status-row" id="sr3">
+        <span class="status-label">Annoyance Status</span>
+        <span class="status-value yellow">● Under Control</span>
+      </div>
+    </div>
+    <div class="final-msg">
+      <h2>Thank you for reviewing this report.</h2>
+      <p>I will attempt to behave.</p>
+      <small>No promises.</small>
+    </div>
+    <button class="btn-primary" onclick="exitInvestigation()">
+      Exit Investigation ✦
+    </button>
+  </div>
+</section>
+
+<script>
+// ── PARTICLES ──
+(function(){
+  const c = document.getElementById('particleCanvas');
+  const ctx = c.getContext('2d');
+  let W, H, particles = [];
+  function resize(){ W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  const COLORS = ['rgba(239,163,200,', 'rgba(247,215,227,', 'rgba(214,179,122,', 'rgba(201,109,154,'];
+  function randomParticle(){
+    return {
+      x: Math.random()*W, y: Math.random()*H,
+      vx: (Math.random()-0.5)*0.3, vy: -Math.random()*0.5-0.1,
+      r: Math.random()*1.5+0.5,
+      color: COLORS[Math.floor(Math.random()*COLORS.length)],
+      alpha: Math.random()*0.5+0.1,
+      life: 0, maxLife: Math.random()*200+100
+    };
+  }
+  for(let i=0;i<60;i++) particles.push(randomParticle());
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach((p,i)=>{
+      p.x+=p.vx; p.y+=p.vy; p.life++;
+      let prog = p.life/p.maxLife;
+      let a = prog < 0.1 ? prog/0.1 : prog > 0.8 ? (1-prog)/0.2 : 1;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = p.color + (p.alpha*a)+')'; ctx.fill();
+      if(p.life >= p.maxLife) particles[i] = randomParticle();
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+// ── FLOATING SPARKLES ──
+const SPARKLE_EMOJIS = ['✦','✧','⋆','·','˖','✺','⊹','✦'];
+function spawnSparkle(){
+  const el = document.createElement('div');
+  el.className = 'sparkle';
+  el.textContent = SPARKLE_EMOJIS[Math.floor(Math.random()*SPARKLE_EMOJIS.length)];
+  el.style.left = Math.random()*100+'vw';
+  el.style.top = '100vh';
+  el.style.color = ['#EFA3C8','#F7D7E3','#D6B37A','#C96D9A'][Math.floor(Math.random()*4)];
+  const dur = Math.random()*8+6;
+  el.style.animationDuration = dur+'s';
+  el.style.animationDelay = '0s';
+  el.style.fontSize = (10+Math.random()*10)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), dur*1000);
+}
+setInterval(spawnSparkle, 600);
+for(let i=0;i<8;i++) setTimeout(spawnSparkle, i*300);
+
+// ── CONFETTI ──
+function launchConfetti(){
+  const c = document.getElementById('confettiCanvas');
+  const ctx = c.getContext('2d');
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  const COLS = ['#EFA3C8','#F7D7E3','#D6B37A','#C96D9A','#FFFDFD','#E8A0C0'];
+  let pieces = [];
+  for(let i=0;i<120;i++){
+    pieces.push({
+      x: Math.random()*c.width, y: -10-Math.random()*100,
+      vx: (Math.random()-0.5)*4, vy: Math.random()*3+2,
+      w: Math.random()*8+4, h: Math.random()*5+3,
+      rot: Math.random()*360, vr: (Math.random()-0.5)*8,
+      color: COLS[Math.floor(Math.random()*COLS.length)], alpha: 1
+    });
+  }
+  let frame = 0;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pieces.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.vy+=0.05;
+      if(frame>100) p.alpha = Math.max(0, p.alpha-0.008);
+      ctx.save(); ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if(frame < 200){ frame++; requestAnimationFrame(draw); }
+    else { ctx.clearRect(0,0,c.width,c.height); }
+  }
+  draw();
+}
+
+// ── SCREEN MANAGEMENT ──
+let currentScreen = 1;
+function goTo(n){
+  const prev = document.getElementById('s'+currentScreen);
+  prev.classList.remove('active');
+  currentScreen = n;
+  const next = document.getElementById('s'+n);
+  next.classList.add('active');
+  setTimeout(()=>initScreen(n), 100);
+}
+
+function initScreen(n){
+  if(n===1) initS1();
+  else if(n===2) initS2();
+  else if(n===3) initS3();
+  else if(n===4) initS4();
+  else if(n===5) initS5();
+  else if(n===6) initS6();
+}
+
+// ── TYPEWRITER UTILITY ──
+function typewriter(el, text, speed, cb){
+  let i = 0; el.innerHTML = '';
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor'; el.appendChild(cursor);
+  function tick(){
+    if(i < text.length){
+      el.insertBefore(document.createTextNode(text[i++]), cursor);
+      setTimeout(tick, speed);
+    } else {
+      cursor.remove(); if(cb) cb();
+    }
+  }
+  tick();
+}
+function typewriterMulti(el, lines, speed, delay, cb){
+  let li = 0;
+  function nextLine(){
+    if(li >= lines.length){ if(cb) cb(); return; }
+    typewriter(el, lines[li++], speed, ()=> setTimeout(nextLine, delay));
+  }
+  nextLine();
+}
+
+// ── SCREEN 1 ──
+function initS1(){
+  const sub = document.getElementById('s1-sub');
+  const lines = [
+    'Following extensive internal review...',
+    'A concerning discovery has been made.'
+  ];
+  let shown = '';
+  function showLine(i){
+    if(i >= lines.length){
+      setTimeout(()=>{
+        fadeIn(document.getElementById('s1-stamp'));
+        fadeIn(document.getElementById('s1-btn'));
+      }, 300);
+      return;
+    }
+    typewriter(sub, shown ? shown + '\n' + lines[i] : lines[i], 40, ()=>{
+      shown = shown ? shown + '\n' + lines[i] : lines[i];
+      setTimeout(()=>showLine(i+1), 600);
+    });
+  }
+  setTimeout(()=>showLine(0), 800);
+}
+
+// ── SCREEN 2 ──
+const scanMsgs = [
+  'Scanning yesterday\'s conversation...',
+  'Reviewing message history...',
+  'Analyzing behavior patterns...',
+  'Checking annoyance levels...',
+  'Compiling data...'
+];
+function initS2(){
+  let i = 0, prog = 0;
+  const statusEl = document.getElementById('scanStatus');
+  const bar = document.getElementById('scanProgress');
+  const result = document.getElementById('scanResult');
+  const btn = document.getElementById('s2-btn');
+  bar.style.width = '0%';
+  function nextMsg(){
+    if(i < scanMsgs.length){
+      statusEl.textContent = scanMsgs[i++];
+      prog = Math.min(95, prog + (90/scanMsgs.length));
+      bar.style.width = prog+'%';
+      setTimeout(nextMsg, 900);
+    } else {
+      bar.style.width = '100%';
+      statusEl.textContent = 'Analysis complete.';
+      setTimeout(()=>{
+        result.classList.add('show');
+        setTimeout(()=>fadeIn(btn), 400);
+      }, 600);
+    }
+  }
+  setTimeout(nextMsg, 400);
+}
+
+// ── SCREEN 3 ──
+function initS3(){
+  const cards = ['ev1','ev2','ev3','ev4'];
+  cards.forEach((id,i)=>{
+    setTimeout(()=>document.getElementById(id).classList.add('show'), 200+i*150);
+  });
+  setTimeout(()=>fadeIn(document.getElementById('s3-btn')), 200+4*150+200);
+}
+
+// ── SCREEN 4 ──
+const logLines = [
+  { text:'Consulting experts...', done:false },
+  { text:'Checking excuses...', done:false },
+  { text:'Rejecting excuses...', done:true },
+  { text:'Preparing report...', done:true },
+];
+function initS4(){
+  const log = document.getElementById('reportLog');
+  const result = document.getElementById('reportResult');
+  const btn = document.getElementById('s4-btn');
+  log.innerHTML = '';
+  result.classList.remove('show');
+  btn.style.opacity='0';
+  logLines.forEach((l,i)=>{
+    setTimeout(()=>{
+      const span = document.createElement('span');
+      span.className = 'log-line' + (l.done?' done':'');
+      span.style.animationDelay='0s';
+      span.textContent = (l.done ? '✓ ' : '› ') + l.text;
+      log.appendChild(span);
+    }, 400+i*700);
+  });
+  setTimeout(()=>{
+    result.classList.add('show');
+    setTimeout(()=>fadeIn(btn),400);
+  }, 400+logLines.length*700+300);
+}
+
+// ── SCREEN 5 ──
+const certLines = [
+  "Sorry if I annoyed you yesterday 😭",
+  "Wasn't intentional.",
+  "I was simply operating at 103% yap capacity."
+];
+function initS5(){
+  const msgEl = document.getElementById('certMsg');
+  const patch = document.getElementById('patchNotes');
+  const btn = document.getElementById('s5-btn');
+  msgEl.innerHTML=''; patch.style.opacity='0'; btn.style.opacity='0';
+  let combined = '';
+  function showLine(i){
+    if(i >= certLines.length){
+      setTimeout(()=>{ patch.style.opacity='1'; setTimeout(()=>fadeIn(btn),400); }, 400);
+      return;
+    }
+    const next = combined ? combined + '\n' + certLines[i] : certLines[i];
+    typewriter(msgEl, next, 45, ()=>{
+      combined = next;
+      setTimeout(()=>showLine(i+1), 700);
+    });
+  }
+  setTimeout(()=>showLine(0), 400);
+}
+
+// ── SCREEN 6 ──
+function initS6(){
+  launchConfetti();
+  ['sr1','sr2','sr3'].forEach((id,i)=>{
+    setTimeout(()=>document.getElementById(id).classList.add('show'), 300+i*200);
+  });
+}
+
+function exitInvestigation(){
+  launchConfetti();
+  const card = document.querySelector('#s6 .glass-card');
+  card.style.transition = 'all 0.8s cubic-bezier(0.4,0,0.2,1)';
+  card.style.transform = 'scale(0.95) translateY(20px)';
+  card.style.opacity = '0';
+  setTimeout(()=>{
+    card.innerHTML = `
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-size:32px;margin-bottom:16px;">✦</div>
+        <div class="display-title" style="text-align:center;font-size:22px;">
+          <em>Investigation</em><br>Concluded.
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:rgba(255,253,253,0.35);line-height:1.8;">
+          This message will self-destruct.<br>
+          <span style="font-size:11px;opacity:0.5;">(It won't. But it felt right to say.)</span>
+        </div>
+      </div>`;
+    card.style.transform = 'scale(1) translateY(0)';
+    card.style.opacity = '1';
+  }, 800);
+}
+
+function fadeIn(el){ el.style.transition='opacity 0.5s ease'; el.style.opacity='1'; }
+
+// ── START ──
+window.addEventListener('load', ()=>{
+  setTimeout(initS1, 600);
+});
+</script>
+</body>
 </html>
