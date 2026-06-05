@@ -355,6 +355,62 @@
   .card-scroll { max-height: 70vh; overflow-y: auto; }
   .card-scroll::-webkit-scrollbar { display: none; }
 
+  /* ── FINAL QUESTION CARD ── */
+  .final-question-card {
+    background: rgba(255,253,253,0.05);
+    border: 1px solid rgba(239,163,200,0.2);
+    border-radius: 20px; padding: 20px 18px;
+    position: relative; overflow: hidden;
+  }
+  .final-question-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(239,163,200,0.4), transparent);
+  }
+  .fq-header { margin-bottom: 16px; }
+  .fq-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 300; font-style: italic;
+    color: var(--soft-white); margin-bottom: 4px;
+  }
+  .fq-subtitle { font-size: 12px; color: rgba(255,253,253,0.4); }
+
+  .btn-mercy {
+    width: 100%; padding: 14px 18px; margin-bottom: 8px;
+    background: rgba(239,163,200,0.07);
+    border: 1px solid rgba(239,163,200,0.18);
+    border-radius: 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400;
+    color: rgba(255,253,253,0.8); cursor: pointer; text-align: left;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    display: block;
+  }
+  .btn-mercy:last-child { margin-bottom: 0; }
+  .btn-mercy:hover { background: rgba(239,163,200,0.14); border-color: rgba(239,163,200,0.35); transform: translateX(4px); }
+  .btn-mercy:active { transform: scale(0.98); }
+  .btn-mercy-highlight {
+    background: rgba(201,109,154,0.12);
+    border-color: rgba(201,109,154,0.3);
+    color: var(--rose);
+  }
+  .btn-mercy-highlight:hover { background: rgba(201,109,154,0.2); border-color: rgba(201,109,154,0.5); }
+
+  .mercy-success { text-align: center; padding: 8px 0; }
+  .mercy-icon { font-size: 24px; margin-bottom: 10px; animation: mercySpin 1s ease both; }
+  @keyframes mercySpin { from{transform:scale(0) rotate(-180deg); opacity:0;} to{transform:scale(1) rotate(0deg); opacity:1;} }
+  .mercy-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-style: italic; font-weight: 300;
+    color: var(--soft-white); margin-bottom: 6px;
+  }
+  .mercy-text { font-size: 13px; color: rgba(255,253,253,0.65); margin-bottom: 4px; }
+  .mercy-small { font-size: 11px; color: rgba(255,253,253,0.3); margin-bottom: 12px; letter-spacing: 0.05em; }
+  .mercy-closure {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: #88D5A8; background: rgba(136,213,168,0.1);
+    border: 1px solid rgba(136,213,168,0.2);
+    border-radius: 100px; display: inline-block; padding: 4px 14px;
+  }
+
   /* Responsive */
   @media (max-width: 380px) {
     .glass-card { padding: 28px 20px; border-radius: 24px; }
@@ -444,7 +500,6 @@
   </div>
 </section>
 
-
 <!-- ═══════════════════════════ SCREEN 4 ═══════════════════════════ -->
 <section class="screen" id="s4">
   <div class="glass-card">
@@ -455,15 +510,15 @@
       <div style="font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;color:var(--champagne);margin-bottom:12px;">Official Findings</div>
       <div class="report-field">
         <span class="report-field-label">Verdict</span>
-        <span class="report-field-value">Not intentional</span>
+        <span class="report-field-value" style="font-size:12px;">Zain is dumb. Not as smart as Your Highness.</span>
       </div>
       <div class="report-field">
         <span class="report-field-label">Primary Cause</span>
-        <span class="report-field-value">Yapping Syndrome</span>
+        <span class="report-field-value" style="font-size:12px;">Fathima was an easy target. (He only has one target.)</span>
       </div>
       <div class="report-field">
         <span class="report-field-label">Severity</span>
-        <span class="severity-chip">Moderate</span>
+        <span class="severity-chip">Embarrassing</span>
       </div>
       <div class="report-field">
         <span class="report-field-label">Classification</span>
@@ -496,6 +551,29 @@
       <div class="patch-item"><span class="warn">⚠</span> Still asks random questions</div>
       <div class="patch-item"><span class="warn">⚠</span> Still likely to send websites</div>
     </div>
+
+    <!-- FINAL QUESTION CARD -->
+    <div class="final-question-card" id="finalQuestionCard" style="opacity:0;transition:opacity 0.6s ease;margin-top:16px;">
+      <div class="fq-header">
+        <div class="fq-title">Final Question</div>
+        <div class="fq-subtitle">Before this case can officially be closed...</div>
+      </div>
+      <div id="mercyBtns">
+        <button class="btn-mercy" onclick="chooseMercy(this)">He was never annoying.</button>
+        <button class="btn-mercy" onclick="chooseMercy(this)">Zain and annoying? Never.</button>
+        <button class="btn-mercy btn-mercy-highlight" onclick="chooseMercy(this)">OHH PLEASE I FORGIVE U 😭</button>
+      </div>
+      <div id="mercyResult" style="opacity:0;transition:opacity 0.6s ease;display:none;">
+        <div class="mercy-success">
+          <div class="mercy-icon">✦</div>
+          <div class="mercy-title">Response Recorded</div>
+          <div class="mercy-text">Your Highness has chosen mercy.</div>
+          <div class="mercy-small">Unexpected outcome.</div>
+          <div class="mercy-closure">Case closure approved.</div>
+        </div>
+      </div>
+    </div>
+
     <button class="btn-primary" id="s5-btn" style="opacity:0;margin-top:16px;" onclick="goTo(6)">
       Close Case →
     </button>
@@ -512,18 +590,18 @@
         <span class="status-value green">● Closed</span>
       </div>
       <div class="status-row" id="sr2">
-        <span class="status-label">Friendship Status</span>
-        <span class="status-value blue">● Operational</span>
+        <span class="status-label">Fathima Anger Level</span>
+        <span class="status-value blue">● 0% (Hopefully)</span>
       </div>
       <div class="status-row" id="sr3">
-        <span class="status-label">Annoyance Status</span>
-        <span class="status-value yellow">● Under Control</span>
+        <span class="status-label">Zain Survival Chances</span>
+        <span class="status-value yellow">● Stable</span>
       </div>
     </div>
     <div class="final-msg">
-      <h2>Thank you for reviewing this report.</h2>
-      <p>I will attempt to behave.</p>
-      <small>No promises.</small>
+      <h2>Thank you for reviewing this case, Your Highness.</h2>
+      <p>The suspect has learned absolutely nothing.</p>
+      <small>But he is sorry.</small>
     </div>
     <button class="btn-primary" onclick="exitInvestigation()">
       Exit Investigation ✦
@@ -767,12 +845,22 @@ const certLines = [
 function initS5(){
   const msgEl = document.getElementById('certMsg');
   const patch = document.getElementById('patchNotes');
+  const fq = document.getElementById('finalQuestionCard');
   const btn = document.getElementById('s5-btn');
-  msgEl.innerHTML=''; patch.style.opacity='0'; btn.style.opacity='0';
+  const mercyResult = document.getElementById('mercyResult');
+  const mercyBtns = document.getElementById('mercyBtns');
+  msgEl.innerHTML=''; patch.style.opacity='0'; fq.style.opacity='0'; btn.style.opacity='0';
+  mercyResult.style.display='none'; mercyResult.style.opacity='0';
+  mercyBtns.style.display='block'; mercyBtns.style.opacity='1';
   let combined = '';
   function showLine(i){
     if(i >= certLines.length){
-      setTimeout(()=>{ patch.style.opacity='1'; setTimeout(()=>fadeIn(btn),400); }, 400);
+      setTimeout(()=>{
+        patch.style.opacity='1';
+        setTimeout(()=>{
+          fq.style.opacity='1';
+        }, 400);
+      }, 400);
       return;
     }
     const next = combined ? combined + '\n' + certLines[i] : certLines[i];
@@ -782,6 +870,24 @@ function initS5(){
     });
   }
   setTimeout(()=>showLine(0), 400);
+}
+
+function chooseMercy(btn){
+  launchConfetti();
+  const btnsEl = document.getElementById('mercyBtns');
+  const resultEl = document.getElementById('mercyResult');
+  const s5btn = document.getElementById('s5-btn');
+  btnsEl.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+  btnsEl.style.opacity = '0';
+  btnsEl.style.transform = 'translateY(-8px)';
+  setTimeout(()=>{
+    btnsEl.style.display = 'none';
+    resultEl.style.display = 'block';
+    requestAnimationFrame(()=>{
+      resultEl.style.opacity = '1';
+      setTimeout(()=>fadeIn(s5btn), 600);
+    });
+  }, 400);
 }
 
 // ── SCREEN 6 ──
@@ -806,8 +912,9 @@ function exitInvestigation(){
           <em>Investigation</em><br>Concluded.
         </div>
         <div style="margin-top:12px;font-size:13px;color:rgba(255,253,253,0.35);line-height:1.8;">
-          This message will self-destruct.<br>
-          <span style="font-size:11px;opacity:0.5;">(It won't. But it felt right to say.)</span>
+          Case archived successfully.<br>
+          <span style="font-size:11px;opacity:0.6;">Please do not reopen the investigation.</span><br>
+          <span style="font-size:10px;opacity:0.3;">Actually please do.</span>
         </div>
       </div>`;
     card.style.transform = 'scale(1) translateY(0)';
