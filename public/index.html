@@ -352,8 +352,30 @@
   }
 
   /* ── SCROLLABLE CARD CONTENT ── */
-  .card-scroll { max-height: 70vh; overflow-y: auto; }
+  .card-scroll { max-height: 78vh; overflow-y: auto; scroll-behavior: smooth; }
   .card-scroll::-webkit-scrollbar { display: none; }
+
+  /* Scroll fade hint at bottom */
+  .scroll-hint-wrap { position: relative; }
+  .scroll-hint-wrap .scroll-fade {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
+    background: linear-gradient(to bottom, transparent, rgba(20,8,15,0.85));
+    border-radius: 0 0 32px 32px;
+    pointer-events: none; z-index: 2;
+    transition: opacity 0.4s ease;
+  }
+  .scroll-hint-wrap .scroll-arrow {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    z-index: 3; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    animation: scrollBounce 1.8s ease-in-out infinite;
+  }
+  .scroll-hint-wrap .scroll-arrow span {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(239,163,200,0.7); font-weight: 500;
+  }
+  .scroll-hint-wrap .scroll-arrow svg { display: block; }
+  @keyframes scrollBounce { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(4px);} }
 
   /* ── FINAL QUESTION CARD ── */
   .final-question-card {
@@ -372,27 +394,44 @@
     font-size: 18px; font-weight: 300; font-style: italic;
     color: var(--soft-white); margin-bottom: 4px;
   }
-  .fq-subtitle { font-size: 12px; color: rgba(255,253,253,0.4); }
+  .fq-subtitle { font-size: 12px; color: rgba(255,253,253,0.4); margin-bottom: 2px; }
+  .fq-instruction {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--rose); font-weight: 500; margin-top: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .fq-instruction::before { content: ''; flex: 1; height: 1px; background: rgba(239,163,200,0.15); }
+  .fq-instruction::after { content: ''; flex: 1; height: 1px; background: rgba(239,163,200,0.15); }
 
   .btn-mercy {
-    width: 100%; padding: 14px 18px; margin-bottom: 8px;
+    width: 100%; padding: 13px 16px; margin-bottom: 8px;
     background: rgba(239,163,200,0.07);
     border: 1px solid rgba(239,163,200,0.18);
     border-radius: 14px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400;
-    color: rgba(255,253,253,0.8); cursor: pointer; text-align: left;
+    font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 400;
+    color: rgba(255,253,253,0.8); cursor: pointer;
+    text-align: left; display: flex; align-items: center; gap: 12px;
     transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-    display: block;
   }
   .btn-mercy:last-child { margin-bottom: 0; }
-  .btn-mercy:hover { background: rgba(239,163,200,0.14); border-color: rgba(239,163,200,0.35); transform: translateX(4px); }
+  .btn-mercy:hover { background: rgba(239,163,200,0.14); border-color: rgba(239,163,200,0.4); transform: translateX(3px) scale(1.01); }
   .btn-mercy:active { transform: scale(0.98); }
-  .btn-mercy-highlight {
-    background: rgba(201,109,154,0.12);
-    border-color: rgba(201,109,154,0.3);
-    color: var(--rose);
+  .btn-mercy .opt-num {
+    min-width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(239,163,200,0.1); border: 1px solid rgba(239,163,200,0.25);
+    font-size: 10px; font-weight: 600; color: var(--rose);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .btn-mercy-highlight:hover { background: rgba(201,109,154,0.2); border-color: rgba(201,109,154,0.5); }
+  .btn-mercy-highlight {
+    background: rgba(201,109,154,0.14);
+    border-color: rgba(201,109,154,0.35);
+    color: var(--rose);
+    box-shadow: 0 4px 16px rgba(201,109,154,0.15);
+  }
+  .btn-mercy-highlight .opt-num {
+    background: rgba(201,109,154,0.2); border-color: rgba(201,109,154,0.4);
+  }
+  .btn-mercy-highlight:hover { background: rgba(201,109,154,0.22); border-color: rgba(201,109,154,0.55); }
 
   .mercy-success { text-align: center; padding: 8px 0; }
   .mercy-icon { font-size: 24px; margin-bottom: 10px; animation: mercySpin 1s ease both; }
@@ -533,50 +572,60 @@
 
 <!-- ═══════════════════════════ SCREEN 5 ═══════════════════════════ -->
 <section class="screen" id="s5">
-  <div class="glass-card card-scroll">
-    <div class="badge"><div class="badge-dot"></div>Resolution</div>
-    <div class="certificate">
-      <div class="certificate-header">✦ Official Apology — On Record ✦</div>
-      <div class="certificate-msg" id="certMsg"></div>
-    </div>
-    <div class="patch-notes" id="patchNotes" style="opacity:0;transition:opacity 0.5s ease;">
-      <div class="patch-title">System Update v2.1 — Patch Notes</div>
-      <div class="patch-item"><span class="green">✔</span> Reduced yapping by 2%</div>
-      <div class="patch-item"><span class="green">✔</span> Improved self-awareness</div>
-      <div class="patch-item"><span class="green">✔</span> Added apology feature</div>
-      <div class="patch-item"><span class="green">✔</span> Fixed absolutely nothing</div>
-      <div style="height:6px;"></div>
-      <div class="patch-title" style="color:var(--champagne);">Known Issues</div>
-      <div class="patch-item"><span class="warn">⚠</span> Still occasionally annoying</div>
-      <div class="patch-item"><span class="warn">⚠</span> Still asks random questions</div>
-      <div class="patch-item"><span class="warn">⚠</span> Still likely to send websites</div>
-    </div>
+  <div class="scroll-hint-wrap" style="width:100%;max-width:420px;">
+    <div class="glass-card card-scroll" id="s5card">
+      <div class="badge"><div class="badge-dot"></div>Resolution</div>
+      <div class="certificate">
+        <div class="certificate-header">✦ Official Apology — On Record ✦</div>
+        <div class="certificate-msg" id="certMsg"></div>
+      </div>
+      <div class="patch-notes" id="patchNotes" style="opacity:0;transition:opacity 0.5s ease;">
+        <div class="patch-title">System Update v2.1 — Patch Notes</div>
+        <div class="patch-item"><span class="green">✔</span> Reduced yapping by 2%</div>
+        <div class="patch-item"><span class="green">✔</span> Improved self-awareness</div>
+        <div class="patch-item"><span class="green">✔</span> Added apology feature</div>
+        <div class="patch-item"><span class="green">✔</span> Fixed absolutely nothing</div>
+        <div style="height:6px;"></div>
+        <div class="patch-title" style="color:var(--champagne);">Known Issues</div>
+        <div class="patch-item"><span class="warn">⚠</span> Still occasionally annoying</div>
+        <div class="patch-item"><span class="warn">⚠</span> Still asks random questions</div>
+        <div class="patch-item"><span class="warn">⚠</span> Still likely to send websites</div>
+      </div>
 
-    <!-- FINAL QUESTION CARD -->
-    <div class="final-question-card" id="finalQuestionCard" style="opacity:0;transition:opacity 0.6s ease;margin-top:16px;">
-      <div class="fq-header">
-        <div class="fq-title">Final Question</div>
-        <div class="fq-subtitle">Before this case can officially be closed...</div>
-      </div>
-      <div id="mercyBtns">
-        <button class="btn-mercy" onclick="chooseMercy(this)">He was never annoying.</button>
-        <button class="btn-mercy" onclick="chooseMercy(this)">Zain and annoying? Never.</button>
-        <button class="btn-mercy btn-mercy-highlight" onclick="chooseMercy(this)">OHH PLEASE I FORGIVE U 😭</button>
-      </div>
-      <div id="mercyResult" style="opacity:0;transition:opacity 0.6s ease;display:none;">
-        <div class="mercy-success">
-          <div class="mercy-icon">✦</div>
-          <div class="mercy-title">Response Recorded</div>
-          <div class="mercy-text">Your Highness has chosen mercy.</div>
-          <div class="mercy-small">Unexpected outcome.</div>
-          <div class="mercy-closure">Case closure approved.</div>
+      <!-- FINAL QUESTION CARD -->
+      <div class="final-question-card" id="finalQuestionCard" style="opacity:0;transition:opacity 0.6s ease;margin-top:16px;">
+        <div class="fq-header">
+          <div class="fq-title">Final Question</div>
+          <div class="fq-subtitle">Before this case can officially be closed...</div>
+          <div class="fq-instruction">Choose one</div>
+        </div>
+        <div id="mercyBtns">
+          <button class="btn-mercy" onclick="chooseMercy(this)"><span class="opt-num">A</span>He was never annoying.</button>
+          <button class="btn-mercy" onclick="chooseMercy(this)"><span class="opt-num">B</span>Zain and annoying? Never.</button>
+          <button class="btn-mercy btn-mercy-highlight" onclick="chooseMercy(this)"><span class="opt-num">C</span>OHH PLEASE I FORGIVE U 😭</button>
+        </div>
+        <div id="mercyResult" style="opacity:0;transition:opacity 0.6s ease;display:none;">
+          <div class="mercy-success">
+            <div class="mercy-icon">✦</div>
+            <div class="mercy-title">Response Recorded</div>
+            <div class="mercy-text">Your Highness has chosen mercy.</div>
+            <div class="mercy-small">Unexpected outcome.</div>
+            <div class="mercy-closure">Case closure approved.</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <button class="btn-primary" id="s5-btn" style="opacity:0;margin-top:16px;" onclick="goTo(6)">
-      Close Case →
-    </button>
+      <button class="btn-primary" id="s5-btn" style="opacity:0;margin-top:16px;" onclick="goTo(6)">
+        Close Case →
+      </button>
+    </div>
+    <div class="scroll-fade" id="s5scrollFade"></div>
+    <div class="scroll-arrow" id="s5scrollArrow">
+      <span>scroll</span>
+      <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
+        <path d="M1 1L7 7L13 1" stroke="rgba(239,163,200,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
   </div>
 </section>
 
@@ -836,11 +885,8 @@ function initS4(){
   }, 400+logLines.length*700+300);
 }
 
-// ── SCREEN 5 ──
 const certLines = [
-  "Sorry if I annoyed you yesterday 😭",
-  "Wasn't intentional.",
-  "I was simply operating at 103% yap capacity."
+  'Sorry if I annoyed you yesterday 😭 (Hau mai annoy kariya soech kya ab?) Your Highness is very dayalu. She will probably be like "ayyooo kya bade baatein yeh, I forgive u my great warrior."'
 ];
 function initS5(){
   const msgEl = document.getElementById('certMsg');
@@ -849,9 +895,22 @@ function initS5(){
   const btn = document.getElementById('s5-btn');
   const mercyResult = document.getElementById('mercyResult');
   const mercyBtns = document.getElementById('mercyBtns');
+  const card = document.getElementById('s5card');
+  const fade = document.getElementById('s5scrollFade');
+  const arrow = document.getElementById('s5scrollArrow');
   msgEl.innerHTML=''; patch.style.opacity='0'; fq.style.opacity='0'; btn.style.opacity='0';
   mercyResult.style.display='none'; mercyResult.style.opacity='0';
   mercyBtns.style.display='block'; mercyBtns.style.opacity='1';
+  mercyBtns.style.transform='';
+  fade.style.opacity='0'; arrow.style.opacity='0';
+
+  // Hide scroll hint when near bottom
+  card.addEventListener('scroll', function(){
+    const atBottom = card.scrollHeight - card.scrollTop - card.clientHeight < 40;
+    fade.style.opacity = atBottom ? '0' : '1';
+    arrow.style.opacity = atBottom ? '0' : '1';
+  }, { passive: true });
+
   let combined = '';
   function showLine(i){
     if(i >= certLines.length){
@@ -859,6 +918,12 @@ function initS5(){
         patch.style.opacity='1';
         setTimeout(()=>{
           fq.style.opacity='1';
+          // show scroll hint now that there's more content
+          setTimeout(()=>{
+            fade.style.opacity='1'; arrow.style.opacity='1';
+            // auto-scroll so user can see the final question peeking
+            card.scrollTo({ top: card.scrollHeight, behavior: 'smooth' });
+          }, 300);
         }, 400);
       }, 400);
       return;
